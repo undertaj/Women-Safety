@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Women Safety</title>
+    <link rel="stylesheet" type="text/css" href="style.css" title="style">
+    <style>
+      #menubar{
+        width:1600px !important;
+      }
+      ul#menu{
+        transform: translatex(30%) !important;
+      }
+      #right-panel {
+        font-family: 'Roboto','sans-serif';
+        
+      }
+
+      #right-panel select, #right-panel input {
+        font-size: 15px;
+      }
+
+      #right-panel select {
+        width: 100%;
+      }
+
+      #right-panel i {
+        font-size: 12px;
+      }
+      html, body {
+        height: 10%;
+        margin: 0;
+        padding: 0;
+      }
+      #map {
+        height: 100%;
+        width: 80%;
+      }
+      #right-panel {
+        float: right;
+        width: 10%;
+      }
+      #output {
+        font-size: 11px;
+      }
+    </style>
+  </head>
+  <body>
+<div id="menubar">
+        <ul id="menu">
+          <!-- put class="selected" in the li tag for the selected page - to highlight which page you're on -->
+          <li><a href="index.html">Welcome Page</a></li>
+          <li class="selected"><a href="page_one.html">Navigation</a></li>
+          <li><a href="page_two.html">Safe Zone</a></li>
+          <li><a href="page_three.html">Guardians</a></li>
+          <li><a href="page_four.html">Safety Alarm</a></li>
+        </ul>
+      </div>
+    
+      <div id="right-panel">
+      <div id="inputs">
+      </div>
+      <div>
+        <strong>Results</strong>
+      </div>
+      <div id="output"></div>
+    </div>
+    <div id="map"></div>
+    
+    <script>
+        var geocoder = new google.maps.Geocoder;
+
+        var service = new google.maps.DistanceMatrixService;
+        service.getDistanceMatrix({
+          origins: [origin],
+          destinations: [destination],
+          travelMode: 'DRIVING',
+          unitSystem: google.maps.UnitSystem.METRIC,
+          avoidHighways: false,
+          avoidTolls: false
+        }, function(response, status) {
+          if (status !== 'OK') {
+            alert('Error was: ' + status);
+          } else {
+            var originList = response.originAddresses;
+            var destinationList = response.destinationAddresses;
+            var outputDiv = document.getElementById('output');
+            outputDiv.innerHTML = '';
+            deleteMarkers(markersArray);
+
+            var showGeocodedAddressOnMap = function(asDestination) {
+              var icon = asDestination ? destinationIcon : originIcon;
+              return function(results, status) {
+                if (status === 'OK') {
+                  map.fitBounds(bounds.extend(results[0].geometry.location));
+                  markersArray.push(new google.maps.Marker({
+                    map: map,
+                    position: results[0].geometry.location,
+                    icon: icon
+                  }));
+                } else {
+                  alert('Geocode was not successful due to: ' + status);
+                }
+              };
+            };
+
+            for (var i = 0; i < originList.length; i++) {
+              var results = response.rows[i].elements;
+              geocoder.geocode({'address': originList[i]},
+                  showGeocodedAddressOnMap(false));
+              for (var j = 0; j < results.length; j++) {
+                geocoder.geocode({'address': destinationList[j]},
+                    showGeocodedAddressOnMap(true));
+                outputDiv.innerHTML += originList[i] + ' to ' + destinationList[j] +
+                    ': ' + results[j].distance.text + ' in ' +
+                    results[j].duration.text + '<br>';
+              }
+            }
+          }
+        });
+      
+
+      function deleteMarkers(markersArray) {
+        for (var i = 0; i < markersArray.length; i++) {
+          markersArray[i].setMap(null);
+        }
+        markersArray = [];
+      }
+    </script>
+    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d30704070.93226607!2d64.39185223434875!3d20.0481165192586!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x30635ff06b92b791%3A0xd78c4fa1854213a6!2sIndia!5e0!3m2!1sen!2sin!4v1664340703054!5m2!1sen!2sin" width="1250" height="550" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+    <script async defer
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBbl-QdcG2sHyqxz4Qu_ZE7pjmZNY1KP7I&callback=initMap">
+    </script>
+  </body>
+</html>
